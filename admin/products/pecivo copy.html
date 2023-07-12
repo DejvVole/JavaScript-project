@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+</head>
+<style>
+    img{
+        height: 200px;
+        width: 200px;
+        border: 2px black solid;
+    }
+</style>
+<body>
+    <label>Name</label> <input type="text" id="Namebox"> <br> <br>
+    <label>RollNo</label> <input type="text" id="Rollbox"> <br> <br>
+    <label>Section</label> <input type="text" id="Secbox"> <br> <br>
+    <label>Image</label> <input type="text" id="Image"> <button id="selbtn">Select</button><br> <br>
+    <label>Image name</label> <input type="text" id="namebox"> <label id="extlab"></label> <br><br>
+    <img id="myimg"><br> <br>
+
+    <label>Name</label> 
+    <select id="Genbox">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select>
+    <select id="position" class="s">
+        <option value="student">Student</option>
+        <option value="Teacher">Teacher</option>
+    </select>
+    <hr>
+    <button class="Insbtn">INSERT</button>
+    <br><br>
+    
+    <script type="module">
+        
+        var segment_str = window.location.pathname; 
+        var segment_array = segment_str.split( '/' );
+        var last_segment = segment_array.pop();
+        var array = [];
+        var array_2 = "";
+        array = last_segment;
+
+        for(var i = 0; i < array.length; i++){
+            if(array[i] != '.'){
+                array_2 = array_2+array[i];
+            }else{
+                break;
+            }
+        }
+        //namebox.value = array_2;
+        //console.log(array_2);;
+
+
+
+        window.onload = products;
+        
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzWrGoQuvqsifNujdvQKRkMlmZY6Iaalc",
+            authDomain: "project1-b3e3b.firebaseapp.com",
+            databaseURL: "https://project1-b3e3b-default-rtdb.firebaseio.com",
+            projectId: "project1-b3e3b",
+            storageBucket: "project1-b3e3b.appspot.com",
+            messagingSenderId: "804904357357",
+            appId: "1:804904357357:web:683f377e92d41bfa2dabe4"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, set, child, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js"
+
+        const db = getDatabase();
+        const dbref = ref(db);
+        const issuesRef = ref(db, array_2);
+        
+
+        var files = [];
+        var reader = new FileReader();
+        
+
+        var myimg = document.getElementById('myimg');
+        var SelBtn = document.getElementById('selbtn');
+        var img_n = document.getElementById('namebox');
+
+        var input = document.createElement('input');
+        input.type = 'file';
+        
+        input.onchange = e =>{
+            files = e.target.files;
+
+            var extention = GetFileExt(files[0]);
+            var name = GetFileName(files[0]);
+
+            img_n.value = name;
+            extlab.innerHTML = extention;
+
+            reader.readAsDataURL(files[0]);
+        }
+
+        reader.onload = function(){
+            myimg.src = reader.result;
+        }
+
+
+        SelBtn.onclick = function(){
+            input.click();
+        }
+
+        function GetFileExt(file){
+            var temp = file.name.split('.');
+            var ext = temp.slice((temp.length-1),(temp.length));
+            return '.' + ext[0];
+        }
+
+        function GetFileName(file){
+            var temp = file.name.split('.');
+            var fname = temp.slice(0,-1).join('.');
+            return fname;
+        }
+
+
+        var id = 0;
+        function products() {
+            onValue(issuesRef, (snapshot) => {
+                snapshot.forEach(snap => {
+                    const issue = snap.val();
+
+                    var id_2 = document.createElement("div");
+                    var div = document.createElement("div");
+                    var div2 = document.createElement("div");
+                    var div3 = document.createElement("div");
+                    var div4 = document.createElement("div");
+                    var img = document.createElement("img");
+                    img.setAttribute("src", issue.ImgUrl);
+                    img.setAttribute('width', 200);
+                    img.setAttribute('height', 200);
+
+                    var ciara = document.createElement("div")
+
+                    /* delete button */
+                    var buttn = document.createElement("button");
+                    buttn.setAttribute("id", issue.RollNo);
+                    
+                    buttn.addEventListener("click", function(event) {
+                        remove(ref(db, array_2 + '/' + event.target.id));
+                        location.reload();
+                    });
+
+                    /*update button*/
+                    var namebox_u = document.getElementById("Namebox");
+                    var rollbox = document.getElementById("Rollbox");
+                    var secbox = document.getElementById("Secbox");
+                    var genbox = document.getElementById("Genbox");
+                    var position = document.getElementById("position");
+                    var img_url = document.getElementById("Image");
+
+                    var insBtn = document.getElementsByClassName("Insbtn");
+
+                    var buttn_update = document.createElement("button");
+                    buttn_update.setAttribute("id", issue.RollNo);
+                    
+                    buttn_update.addEventListener("click", function(event) {
+                        get(child(dbref, array_2 + '/' + event.target.id)).then((snapshot)=>{
+                            namebox_u.value = snapshot.val().NameOfStd;
+                            rollbox.value = snapshot.val().RollNo;
+                            secbox.value = snapshot.val().Section;  
+                            img_url.value = snapshot.val().ImgUrl;  
+                            myimg.setAttribute("src", snapshot.val().ImgUrl);                        
+                        });
+                
+                        /* mozno funguje iba ked je jeden class na stranke */
+                        insBtn[0].setAttribute("id", event.target.id);
+                    });
+
+                    insBtn[0].addEventListener("click", function(event) {
+                        if(img_n.value == ""){
+                            set(ref(db, array_2 + '/' + event.target.id),{
+                                NameOfStd: namebox_u.value,
+                                RollNo: rollbox.value,
+                                Section: secbox.value,
+                                Gender: genbox.value,
+                                ImgUrl: img_url.value
+                                })
+                            .then(()=>{
+                                alert('Success');
+                            })
+                            .catch((error)=>{
+                                alert('Unsuccessful, error' + error);
+                            });
+                            location.reload();
+                    
+                        }
+                        else{
+                            var ImgToUpload = files[0];
+
+                            var ImgName = namebox.value + extlab.innerHTML;
+
+                            const metaData = {
+                                contentType: ImgToUpload.type
+                            }
+
+                            const storage = getStorage();
+
+                            const storageRef = sRef(storage, "Images/" + ImgName);
+
+                            const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+                            UploadTask.on('state-changed', (snapshot)=>{
+                                var progress = (snapshot.bytesTrabsferred / snapshot.totalBytes) * 100;
+                            },
+                            (error) =>{
+                                alert("error");
+                            },
+                            ()=>{
+                                getDownloadURL(UploadTask.snapshot.ref).then((downloadURL)=>{
+                                        console.log(downloadURL);
+                                        img_url.value = downloadURL;
+                                        set(ref(db, array_2 + '/' + event.target.id),{
+                                            NameOfStd: namebox_u.value,
+                                            RollNo: rollbox.value,
+                                            Section: secbox.value,
+                                            Gender: genbox.value,
+                                            ImgUrl: img_url.value
+                                        })
+                                        .then(()=>{
+                                            alert('Success');
+                                        })
+                                        .catch((error)=>{
+                                            alert('Unsuccessful, error' + error);
+                                        });
+                                        location.reload();
+                                    })
+                                }
+                            ); 
+                        }
+                        
+                    });
+                    
+                    var br = document.createElement("br");
+                    
+                    id_2.innerHTML = ++id;
+                    div.innerHTML = issue.NameOfStd;
+                    div2.innerHTML = issue.Gender;
+                    div3.innerHTML = issue.RollNo;
+                    div4.innerHTML = issue.Section;
+                    ciara.innerHTML = "------------"
+                    buttn.innerHTML = "delete";
+                    buttn_update.innerHTML = "update";
+
+                    
+                    document.body.appendChild(id_2)
+                    document.body.appendChild(div);
+                    document.body.appendChild(div2);
+                    document.body.appendChild(div3);
+                    document.body.appendChild(div4);
+                    document.body.appendChild(img);
+                    document.body.appendChild(buttn);
+                    document.body.appendChild(buttn_update);
+                    document.body.appendChild(ciara);
+                    document.body.appendChild(br)
+                })
+            });  
+        }
+
+    </script>
+</body>
+</html>

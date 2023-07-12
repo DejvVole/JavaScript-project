@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../style/main.css">
+
+    <script src="https://use.fontawesome.com/4c0ffa4f7b.js"></script>
+    <script src="https://kit.fontawesome.com/5318d5fb86.js" crossorigin="anonymous"></script>
+
+    <title>Project</title>
+</head>
+
+<body>
+    <header>
+        <h2>Company Name</h2>
+        <h4 onclick="logout()"><i class="fas fa-user-cog"></i> Odhlásiť sa</h4>
+    </header>
+
+    <div class="main">
+        <div class="about">
+           <a href=""><h4>Avout us</h4></a>
+        </div>
+        <div class="contact">
+            <a href=""><h4>Contact us</h4></a>
+        </div>
+        <div class="products">
+            <a href="add_product.html"><h4>Add products</h4></a>
+        </div>
+        <div class="delete_update">
+            <a href="products.html"><h4>Del or up pro</h4></a>
+        </div>
+    </div>
+</body>
+
+<script>
+    if (localStorage.getItem("heslo") != "0000") {
+        window.location = "password_page.html";
+    }
+
+    function logout(){
+        localStorage.removeItem("heslo");
+        window.location = "../index.html";
+    }
+</script>
+
+</html>

@@ -1,0 +1,44 @@
+header{
+    height: 100vh;
+}
+
+.description{
+    position: absolute;
+    top: 27%;
+    left: 20%;
+}
+
+.description p{
+    margin-top: 20px;
+    margin-right: 30%;
+    text-align: justify;
+
+    font-size: 1.25rem;
+}
+
+.description h3{
+    font-size: clamp(1.5rem, 9vw, 3.5rem);
+
+    margin-right: 30%;
+}
+
+.admin{
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: clamp(1.15rem, 1.75vw, 2.55rem);
+}
+
+.description button{
+    margin-top: 50px;
+
+    cursor: pointer;
+
+    background-color: white;
+    outline: white;
+    padding: 5px 10px;
+
+    border: 0.5px solid lightblue;
+    border-radius: 15px;
+}
+

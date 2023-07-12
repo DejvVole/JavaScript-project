@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project</title>
+
+    <style>
+        label{
+            display: inline-block;
+            width: 80px;
+        }
+
+        input, select{
+            width: 120px;
+        }
+
+        img{
+           height: 200px;
+           width: 200px;
+           border: 2px black solid;
+       }
+    </style>
+
+</head>
+<body>
+    <label>Name</label> <input type="text" id="Namebox"> <br> <br>
+    <!-- <label>RollNo</label> <input type="text" id="Rollbox"> <br> <br> -->
+    <label>Section</label> <input type="text" id="Secbox"> <br> <br>
+    <label>Name</label> 
+    <select id="Genbox">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select>
+    <select id="position">
+        <option value="pecivo">Pečivo</option>
+        <option value="napoje">Nápoje</option>
+        <option value="slane">Slané</option>
+    </select>
+    <br> <br>
+    <label>Image name</label> <input type="text" id="namebox"> <label id="extlab"></label> <br><br>
+    <img id="myimg"> <br> <br>
+    <hr>
+    <button id="Insbtn">INSERT</button>
+    <button id="selbtn">Select</button>
+
+   
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+              
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyDzWrGoQuvqsifNujdvQKRkMlmZY6Iaalc",
+        authDomain: "project1-b3e3b.firebaseapp.com",
+        projectId: "project1-b3e3b",
+        storageBucket: "project1-b3e3b.appspot.com",
+        messagingSenderId: "804904357357",
+        appId: "1:804904357357:web:683f377e92d41bfa2dabe4"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, set, child, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js"
+        const db = getDatabase();
+        
+        var files = [];
+        var reader = new FileReader();
+        
+        var namebox_img = document.getElementById('namebox');
+        var extlab = document.getElementById('extlab');
+        var myimg = document.getElementById('myimg');
+        var SelBtn = document.getElementById('selbtn');
+
+        var namebox = document.getElementById("Namebox");
+        var rollbox = document.getElementById("Rollbox");
+        var secbox = document.getElementById("Secbox");
+        var genbox = document.getElementById("Genbox");
+        var position = document.getElementById("position");
+
+        var insBtn = document.getElementById("Insbtn");          
+
+        var input = document.createElement('input');
+        input.type = 'file';
+        
+        input.onchange = e =>{
+            files = e.target.files;
+
+            var extention = GetFileExt(files[0]);
+            var name = GetFileName(files[0]);
+
+            namebox_img.value = name;
+            extlab.innerHTML = extention;
+
+            reader.readAsDataURL(files[0]);
+        }
+
+        reader.onload = function(){
+            myimg.src = reader.result;
+        }
+
+
+        SelBtn.onclick = function(){
+            input.click();
+        }
+
+        function GetFileExt(file){
+            var temp = file.name.split('.');
+            var ext = temp.slice((temp.length-1),(temp.length));
+            return '.' + ext[0];
+        }
+
+        function GetFileName(file){
+            var temp = file.name.split('.');
+            var fname = temp.slice(0,-1).join('.');
+            return fname;
+        }
+
+        var max_id = 0;
+        var id = 0;
+        var id_2 = 0; 
+        async function UploadProcess() {
+            /* zistovanie poslednej osoby (id) v databaze */
+            
+            const issuesRef = ref(db, position.value + "/");
+            onValue(issuesRef, (snapshot) => {
+                snapshot.forEach(snap => {
+                    const issue = snap.val();
+                    max_id = issue.RollNo;
+                })
+            });
+
+            var ImgToUpload = files[0];
+
+            var ImgName = namebox.value + extlab.innerHTML;
+
+            const metaData = {
+                contentType: ImgToUpload.type
+            }
+
+            const storage = getStorage();
+
+            const storageRef = sRef(storage, "Images/" + ImgName);
+
+            const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+            UploadTask.on('state-changed', (snapshot)=>{
+                var progress = (snapshot.bytesTrabsferred / snapshot.totalBytes) * 100;
+            },
+            (error) =>{
+                alert("error");
+            },
+            ()=>{
+                getDownloadURL(UploadTask.snapshot.ref).then((downloadURL)=>{
+                    InsertData(downloadURL);
+                })
+            }
+            );
+        }
+       
+        function InsertData(URL){             
+            id_2 = ++id
+            while(max_id >= id_2){
+                id_2 = ++id;
+            }
+            
+            var name = namebox_img.value;
+            var ext = extlab.innerHTML;
+            
+            set(ref(db, position.value + "/" + id_2),{
+                NameOfStd: namebox.value,
+                RollNo: id_2,
+                Section: secbox.value,
+                Gender: genbox.value,
+                ImgUrl: URL
+            })
+            .then(()=>{
+                alert('Success');
+            })
+            .catch((error)=>{
+                alert('Unsuccessful, error' + error);
+            });
+            location.reload();
+        }
+
+        insBtn.addEventListener('click', UploadProcess);
+        
+        if (localStorage.getItem("heslo") != "0000") {
+            window.location = "password_page.html";
+        }
+    </script>
+</body>
+</html>
