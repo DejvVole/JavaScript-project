@@ -4,7 +4,7 @@ This project is a simple web application built with JavaScript and Firebase that
 ## Features
 
 - Admin authentication: Only authenticated users with admin privileges can access the product management functionality.
-- Add new products: Admins can add new products to the database, including product name, description, price, and image.
+- Add new products: Admins can add new products to the database, including product name, description and image.
 - View all products: All products stored in the database are displayed on the web page.
 - Edit and delete products: Admins can edit or delete existing products from the database.
 
@@ -12,4 +12,6 @@ This project is a simple web application built with JavaScript and Firebase that
 
 - JavaScript
 - Firebase Realtime Database
-- HTML/CSS (for the front-end)
+- HTML/CSS
+
+Note that this project is not done. Backend working good but frontend its still in progress.
